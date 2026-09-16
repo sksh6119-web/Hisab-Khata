@@ -30,7 +30,7 @@ st.markdown("""
 LANGS = {
     "বাংলা (Bengali)": {
         "title": "🛍️ নাসরিন বস্ত্রালয় - হিসাব খাতা",
-        "caption": "Smart Ledger & Quick Contact Sync",
+        "caption": "Smart Ledger, Voice Bill & PDF System",
         "net_bal": "Net Balance (মোট হিসাব)",
         "you_get": "পাবেন (You'll Get)",
         "you_give": "দেবেন (You'll Give)",
@@ -39,21 +39,12 @@ LANGS = {
     },
     "English": {
         "title": "🛍️ Nasrin Bastralaya - Hisab Khata",
-        "caption": "Smart Ledger & Quick Contact Sync",
+        "caption": "Smart Ledger, Voice Bill & PDF System",
         "net_bal": "Net Balance",
         "you_get": "You'll Get",
         "you_give": "You'll Give",
         "search_ph": "Search customer name...",
         "add_cust": "➕ Add Customer"
-    },
-    "हिन्दी (Hindi)": {
-        "title": "🛍️ नसरीन वस्त्रालय - हिसाब खाता",
-        "caption": "Smart Ledger & Quick Contact Sync",
-        "net_bal": "Net Balance",
-        "you_get": "आपको मिलेगा",
-        "you_give": "आपको देना है",
-        "search_ph": "ग्राहक का नाम खोजें...",
-        "add_cust": "➕ नया ग्राहक"
     }
 }
 
@@ -71,23 +62,23 @@ if "customers" not in st.session_state:
             "phone": "919876543210", 
             "balance": 4500, 
             "reg_date": "2024-01-10", 
-            "transactions": [("2024-01-10", "Pending Collection", 4500)]
+            "transactions": [("2024-01-10", "বাকি শাড়ি - ₹4500", 4500)]
         },
         "করিম মণ্ডল": {
             "phone": "919123456789", 
             "balance": 1200, 
             "reg_date": "2026-06-05", 
-            "transactions": [("2026-06-05", "Credit Added", 1200)]
+            "transactions": [("2026-06-05", "প্যান্ট ও শার্ট বাকি - ₹1200", 1200)]
         }
     }
 
 # Sidebar Navigation (OK Credit Style Tabs)
 app_tab = st.sidebar.radio("📋 মেনু (OK Credit Style)", [
     "Ledger (খাতা)", 
-    "Add Customer (কন্টাক্ট থেকে খদ্দের যোগ)", 
-    "Transactions (লেনদেন)", 
-    "Auto-Reminders (অটো-মেসেজ)", 
-    "PDF Bills (বিল ও রিপোর্ট)", 
+    "Add Customer (খদ্দের যোগ)", 
+    "Voice & Item Billing (ভয়েস ও মাল বাকি বিল)", 
+    "Auto-Reminders (অটো-মেসেজ ও ভয়েস)", 
+    "PDF Bill Report (পিডিএফ বিল রিপোর্ট)", 
     "Defaulter List (ডিফল্টার লিস্ট)"
 ])
 
@@ -147,20 +138,15 @@ if app_tab == "Ledger (খাতা)":
         for dt, desc, amt in ac_data["transactions"]:
             st.text(f"📅 {dt} | {desc} : ₹ {amt}")
 
-# 2. Add Customer Tab with Contact Picker / Quick Import Support
-elif app_tab == "Add Customer (কন্টাক্ট থেকে খদ্দের যোগ)":
-    st.subheader("➕ ফোন কন্টাক্ট বা জিমেইল থেকে খদ্দের যোগ করুন")
-    st.info("💡 টিপস: ফোনের কন্টাক্ট আইকন বা অটো-ফিল অপশন ব্যবহার করে সরাসরি আপনার সেভ করা নম্বর ও নাম এখানে নিয়ে আসতে পারেন। আবার চাইলে নিচে নাম সিলেক্ট করতে পারেন।")
-    
-    # Quick pick from common saved customers / contacts simulation
-    saved_contacts_list = ["রিয়া বস্ত্রালয়", "মণ্ডল ব্রাদার্স", "বিপ্লব মৈত্র", "সুবল দম্পতি", "মাস্টার মশাই", "পার্থ কসমেটিক্স"]
+# 2. Add Customer Tab
+elif app_tab == "Add Customer (খদ্দের যোগ)":
+    st.subheader("➕ নতুন খদ্দের যুক্ত করুন")
+    saved_contacts_list = ["রিয়া বস্ত্রালয়", "মণ্ডল ব্রাদার্স", "বিপ্লব মৈত্র", "সুবল দম্পতি", "পার্থ কসমেটিক্স"]
     
     with st.form("add_cust_form"):
-        # Allow choosing from quick contact suggestions or typing
-        quick_select = st.selectbox("📞 আপনার সেভ করা কন্টাক্ট থেকে বাছুন (Quick Contacts):", ["-- নিজে টাইপ করুন বা নতুন দিন --"] + saved_contacts_list)
-        
+        quick_select = st.selectbox("📞 কন্টাক্ট বা জিমেইল থেকে বাছুন (Quick Pick):", ["-- নিজে টাইপ করুন বা নতুন দিন --"] + saved_contacts_list)
         c_name = st.text_input("খদ্দেরের নাম (Customer Name)", value="" if quick_select == "-- নিজে টাইপ করুন বা নতুন দিন --" else quick_select)
-        c_phone = st.text_input("WhatsApp বা মোবাইল নম্বর (Phone Number)", placeholder="যেমন: 919876543210")
+        c_phone = st.text_input("WhatsApp নম্বর (Phone Number)")
         c_due = st.number_input("প্রারম্ভিক বাকি (Opening Due)", min_value=0.0, step=10.0)
         submitted = st.form_submit_button("খদ্দের সেভ করুন")
         
@@ -177,69 +163,74 @@ elif app_tab == "Add Customer (কন্টাক্ট থেকে খদ্�
                 }
                 st.success(f"সফলভাবে {c_name} যোগ করা হয়েছে!")
 
-# 3. Transactions Tab
-elif app_tab == "Transactions (লেনদেন)":
-    st.subheader("💰 লেনদেন রেকর্ড করুন (Give / Receive)")
+# 3. Voice & Item Billing Tab (Key Feature Requested)
+elif app_tab == "Voice & Item Billing (ভয়েস ও মাল বাকি বিল)":
+    st.subheader("🎙️ ভয়েস টাইপিং ও মাল বাকি বিল এন্ট্রি")
+    st.info("💡 টিপস: লেখার বক্সে ট্যাপ করার পর কিবোর্ডের মাইক্রোফোন (Voice Typing) আইকনে ক্লিক করে মুখে বলে দিন (যেমন: 'দুটি জামদানি শাড়ি ও এক জোড়া প্যান্ট বাকি দিলাম ৩০০০ টাকা')। কিবোর্ড নিজে থেকেই লিখে নেবে!")
+    
     if not st.session_state.customers:
-        st.warning("কোনো খদ্দের নেই।")
+        st.warning("প্রথমে খদ্দের যুক্ত করুন।")
     else:
-        sel_c = st.selectbox("খদ্দের বাছুন", list(st.session_state.customers.keys()))
-        t_type = st.radio("ধরণ", ["মাল বাকি দেওয়া (You Gave)", "টাকা জমা নেওয়া (You Received)"])
-        t_amt = st.number_input("টাকার পরিমাণ (₹)", min_value=1.0, step=10.0)
-        t_note = st.text_input("নোট / বিল বিবরণী")
+        sel_cust = st.selectbox("খদ্দের নির্বাচন করুন", list(st.session_state.customers.keys()))
         
-        if st.button("লেনদেন নিশ্চিত করুন"):
-            today_str = str(datetime.date.today())
-            if "Gave" in t_type:
-                st.session_state.customers[sel_c]["balance"] += t_amt
-                st.session_state.customers[sel_c]["transactions"].append((today_str, f"Gave: {t_note}", t_amt))
-                st.success(f"₹ {t_amt} বাকি যোগ করা হয়েছে।")
-            else:
-                st.session_state.customers[sel_c]["balance"] -= t_amt
-                st.session_state.customers[sel_c]["transactions"].append((today_str, f"Received: {t_note}", -t_amt))
-                st.success(f"₹ {t_amt} জমা নেওয়া হয়েছে।")
+        with st.form("voice_item_form"):
+            item_desc = st.text_area("🛒 কী মাল দেওয়া হলো তার বিবরণ (Voice Type বা টাইপ করুন):", placeholder="যেমন: ১টি সিল্ক শাড়ি, ২ কিমি কাপড় বাকি দেওয়া হলো...")
+            bill_amount = st.number_input("বাকি টাকার পরিমাণ (₹)", min_value=1.0, step=10.0)
+            submit_bill = st.form_submit_button("বিল ও বাকি নিশ্চিত করুন")
+            
+            if submit_bill:
+                today_str = str(datetime.date.today())
+                st.session_state.customers[sel_cust]["balance"] += bill_amount
+                full_desc = f"মাল বাকি: {item_desc} (₹{bill_amount})"
+                st.session_state.customers[sel_cust]["transactions"].append((today_str, full_desc, bill_amount))
+                st.success(f"✅ {sel_cust}-এর অ্যাকাউন্টে সফলভাবে বিল ও ₹{bill_amount} বাকি যোগ করা হয়েছে!")
 
-# 4. Auto-Reminders Tab
-elif app_tab == "Auto-Reminders (অটো-মেসেজ)":
-    st.subheader("🤖 WhatsApp ও SMS অটো-রিমাইন্ডার")
+# 4. Auto-Reminders & Voice Note Tips
+elif app_tab == "Auto-Reminders (অটো-মেসেজ ও ভয়েস)":
+    st.subheader("🤖 WhatsApp ও ভয়েস মেসেজ রিমাইন্ডার")
     for name, data in st.session_state.customers.items():
         if data["balance"] > 0:
             st.markdown(f"**👤 {name}** (বাকি: ₹ {data['balance']})")
-            msg_text = f"নমস্কার {name}, নাসরিন বস্ত্রালয়-এ আপনার মোট বাকি ₹ {data['balance']} টাকা। দয়া করে শীঘ্রই পরিশোধ করুন।"
+            msg_text = f"নমস্কার {name}, নাসরিন বস্ত্রালয় থেকে জানানো যাচ্ছে যে আপনার মোট বাকি ₹ {data['balance']} টাকা। দয়া করে শীঘ্রই দোকানে এসে হিসাব পরিশোধ করুন।"
             ed_msg = st.text_area(f"মেসেজ ({name})", value=msg_text, key=f"auto_txt_{name}")
             
             ph = data["phone"]
             if ph:
                 enc = urllib.parse.quote(ed_msg)
                 wa_link = f"https://wa.me/{ph}?text={enc}"
-                sms_link = f"sms:{ph}?body={enc}"
                 
-                c1, c2 = st.columns(2)
-                with c1:
-                    st.markdown(f'<a href="{wa_link}" target="_blank"><button style="background-color:#25D366; color:white; padding:6px 12px; border:none; border-radius:5px; width:100%; font-weight:bold;">📱 WhatsApp Vasooli</button></a>', unsafe_allow_html=True)
-                with c2:
-                    st.markdown(f'<a href="{sms_link}"><button style="background-color:#333; color:white; padding:6px 12px; border:none; border-radius:5px; width:100%; font-weight:bold;">✉️ SMS Reminder</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{wa_link}" target="_blank"><button style="background-color:#25D366; color:white; padding:8px 15px; border:none; border-radius:5px; width:100%; font-weight:bold;">📱 WhatsApp-এ বিল ও রিমাইন্ডার পাঠান</button></a>', unsafe_allow_html=True)
+                st.caption("🎙️ টিপস: WhatsApp চ্যাটে গিয়ে আপনি সরাসরি ভয়েস নোট (Voice Note) রেকর্ড করেও মুখে রিমাইন্ডার পাঠিয়ে দিতে পারেন।")
             st.markdown("---")
 
-# 5. PDF Bills Tab
-elif app_tab == "PDF Bills (বিল ও রিপোর্ট)":
-    st.subheader("📄 বিল এবং স্টেটমেন্ট রিপোর্ট")
+# 5. PDF Bill Report Tab
+elif app_tab == "PDF Bill Report (পিডিএফ বিল রিপোর্ট)":
+    st.subheader("📄 পিডিএফ বিল ও স্টেটমেন্ট তৈরি")
+    st.info("💡 এই পেজ থেকে খদ্দেরের সম্পূর্ণ বিলের তালিকা দেখে সরাসরি প্রিন্ট বা পিডিএফ সেভ করে নিতে পারবেন।")
+    
     if st.session_state.customers:
-        pdf_c = st.selectbox("গ্রাহক নির্বাচন", list(st.session_state.customers.keys()), key="pdf_sel")
+        pdf_c = st.selectbox("গ্রাহক নির্বাচন করুন", list(st.session_state.customers.keys()), key="pdf_sel")
         c_dat = st.session_state.customers[pdf_c]
-        if st.button("বিল জেনারেট করুন"):
-            st.success(f"✅ বিল তৈরি হয়েছে: {pdf_c}")
-            st.write(f"**Nasrin Bastralaya (Tematha Bazar, Belshor)**")
-            st.write(f"Customer: {pdf_c} | Phone: {c_dat['phone']}")
-            st.write(f"Total Due: ₹ {c_dat['balance']}")
+        
+        if st.button("বিল রিপোর্ট প্রিভিউ দেখুন"):
+            st.success(f"✅ {pdf_c}-এর অফিশিয়াল বিল প্রস্তুত!")
             st.markdown("---")
+            st.markdown("### 🛍️ নাসরিন বস্ত্রালয়")
+            st.caption("তেমাথা বাজার, বেলসর, পূর্ব বর্ধমান | ফোন: 91XXXXXXXXXX")
+            st.markdown(f"**গ্রাহক:** {pdf_c} | **ফোন:** {c_dat['phone']}")
+            st.markdown(f"**তারিখ:** {datetime.date.today()}")
+            st.markdown("---")
+            st.write("**লেনদেন ও মালের বিবরণী:**")
             for dt, ds, am in c_dat["transactions"]:
-                st.text(f"{dt} | {ds} : ₹ {am}")
-            st.info("💡 টিপস: ব্রাউজারের থ্রি-ডট মেনু থেকে 'Print / Save as PDF' সিলেক্ট করুন।")
+                st.text(f"• {dt} | {ds}")
+            st.markdown("---")
+            st.markdown(f"### **বর্তমান মোট পাওনা (Total Due): ₹ {c_dat['balance']}**")
+            st.markdown("---")
+            st.info("🖨️ **কীভাবে পিডিএফ করবেন:** মোবাইল ব্রাডজারের ওপরের বা নিচের ৩-ডট (...) মেনুতে ট্যাপ করে **'Print'** বা **'Share / Save as PDF'** সিলেক্ট করলেই এটি সরাসরি পিডিএফ ফাইল আকারে সেভ হয়ে যাবে এবং খদ্দেরকে পাঠাতে পারবেন।")
 
 # 6. Defaulter List Tab
 elif app_tab == "Defaulter List (ডিফল্টার লিস্ট)":
-    st.subheader("⚠️ দীর্ঘমেয়াদী বকেয়া ও ডিফল্টার তালিকা")
+    st.subheader("⚠️ দীর্ঘমেয়াদী বকেয়া ও ডিফল্টার তালিকা (১ বছরের বেশি)")
     today_dt = datetime.date.today()
     found_def = False
     
@@ -253,7 +244,7 @@ elif app_tab == "Defaulter List (ডিফল্টার লিস্ট)":
                 d_msg = f"জরুরি বার্তা: নাসরিন বস্ত্রালয়-এর দীর্ঘদিনের বকেয়া ₹ {data['balance']} দ্রুত পরিশোধ করুন।"
                 d_enc = urllib.parse.quote(d_msg)
                 d_wa = f"https://wa.me/{data['phone']}?text={d_enc}"
-                st.markdown(f'<a href="{d_wa}" target="_blank"><button style="background-color:#E74C3C; color:white; padding:5px 12px; border:none; border-radius:4px; font-weight:bold;">⚠️ Remind Defaulter</button></a>', unsafe_allow_html=True)
+                st.markdown(f'<a href="{d_wa}" target="_blank"><button style="background-color:#E74C3C; color:white; padding:6px 15px; border:none; border-radius:4px; font-weight:bold;">⚠️ Remind Defaulter via WhatsApp</button></a>', unsafe_allow_html=True)
                 st.markdown("---")
     if not found_def:
         st.success("🎉 কোনো দীর্ঘমেয়াদী ডিফল্টার নেই!")

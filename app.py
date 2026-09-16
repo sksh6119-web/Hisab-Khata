@@ -19,12 +19,9 @@ st.markdown("""
         border: 1px solid #D5D8DC;
         margin-bottom: 15px;
     }
-    .customer-row {
-        background-color: #FFFFFF;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 8px;
-        border-bottom: 1px solid #EAEDED;
+    .stButton>button {
+        border-radius: 6px;
+        font-weight: bold;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -33,7 +30,7 @@ st.markdown("""
 LANGS = {
     "বাংলা (Bengali)": {
         "title": "🛍️ নাসরিন বস্ত্রালয় - হিসাব খাতা",
-        "caption": "Digital Ledger & Collection System",
+        "caption": "Smart Ledger & Quick Contact Sync",
         "net_bal": "Net Balance (মোট হিসাব)",
         "you_get": "পাবেন (You'll Get)",
         "you_give": "দেবেন (You'll Give)",
@@ -42,7 +39,7 @@ LANGS = {
     },
     "English": {
         "title": "🛍️ Nasrin Bastralaya - Hisab Khata",
-        "caption": "Digital Ledger & Collection System",
+        "caption": "Smart Ledger & Quick Contact Sync",
         "net_bal": "Net Balance",
         "you_get": "You'll Get",
         "you_give": "You'll Give",
@@ -51,7 +48,7 @@ LANGS = {
     },
     "हिन्दी (Hindi)": {
         "title": "🛍️ नसरीन वस्त्रालय - हिसाब खाता",
-        "caption": "Digital Ledger & Collection System",
+        "caption": "Smart Ledger & Quick Contact Sync",
         "net_bal": "Net Balance",
         "you_get": "आपको मिलेगा",
         "you_give": "आपको देना है",
@@ -67,46 +64,39 @@ st.markdown(f"### {t['title']}")
 st.caption(t['caption'])
 st.markdown("---")
 
-# Session State Initialization with OK Credit type data
+# Session State Initialization
 if "customers" not in st.session_state:
     st.session_state.customers = {
-        "L BABU": {
+        "রহিম শেখ": {
             "phone": "919876543210", 
-            "balance": 6750, 
+            "balance": 4500, 
             "reg_date": "2024-01-10", 
-            "transactions": [("2024-01-10", "Pending Collection Since 42 months", 6750)]
+            "transactions": [("2024-01-10", "Pending Collection", 4500)]
         },
-        "ছবি ভাবি": {
+        "করিম মণ্ডল": {
             "phone": "919123456789", 
-            "balance": 2010, 
-            "reg_date": "2026-08-19", 
-            "transactions": [("2026-08-19", "Credit Added", 2010)]
-        },
-        "জামাই কয়রাপুর": {
-            "phone": "919111122223", 
-            "balance": 0, 
-            "reg_date": "2026-08-14", 
-            "transactions": [("2026-08-14", "Payment Settled", 0)]
-        },
-        "চন্দন দাসপাড়া": {
-            "phone": "919333344445", 
-            "balance": 1250, 
-            "reg_date": "2025-06-06", 
-            "transactions": [("2025-06-06", "Credit Added", 1250)]
+            "balance": 1200, 
+            "reg_date": "2026-06-05", 
+            "transactions": [("2026-06-05", "Credit Added", 1200)]
         }
     }
 
-# OK Credit Style Navigation Tabs (Simulated via Sidebar or Radio)
-app_tab = st.sidebar.radio("📋 মেনু (OK Credit Style)", ["Ledger (খাতা)", "Add Customer (নতুন খদ্দের)", "Transactions (লেনদেন)", "Auto-Reminders (অটো-মেসেজ)", "PDF Bills (বিল ও রিপোর্ট)", "Defaulter List (ডিফল্টার লিস্ট)"])
+# Sidebar Navigation (OK Credit Style Tabs)
+app_tab = st.sidebar.radio("📋 মেনু (OK Credit Style)", [
+    "Ledger (খাতা)", 
+    "Add Customer (কন্টাক্ট থেকে খদ্দের যোগ)", 
+    "Transactions (লেনদেন)", 
+    "Auto-Reminders (অটো-মেসেজ)", 
+    "PDF Bills (বিল ও রিপোর্ট)", 
+    "Defaulter List (ডিফল্টার লিস্ট)"
+])
 
-# 1. Ledger Tab (OK Credit Main Interface)
+# 1. Ledger Tab
 if app_tab == "Ledger (খাতা)":
-    # Calculate Net Balance
     total_get = sum(data["balance"] for data in st.session_state.customers.values() if data["balance"] > 0)
     total_give = sum(abs(data["balance"]) for data in st.session_state.customers.values() if data["balance"] < 0)
     net_val = total_get - total_give
     
-    # OK Credit Style Net Balance Box
     st.markdown(f"""
         <div class="net-balance-card">
             <span style="font-size: 14px; color: #566573; font-weight: bold;">{t['net_bal']}</span><br>
@@ -115,27 +105,23 @@ if app_tab == "Ledger (খাতা)":
         </div>
     """, unsafe_allow_html=True)
     
-    # Search Bar
     search_q = st.text_input("🔍", placeholder=t["search_ph"], label_visibility="collapsed")
     st.markdown("---")
     
-    # Customer List (OK Credit UI Look)
     for name, data in st.session_state.customers.items():
         if search_q and search_q.lower() not in name.lower():
             continue
             
         bal = data["balance"]
-        # Check if defaulter (> 365 days)
         reg_date_obj = datetime.datetime.strptime(data["reg_date"], "%Y-%m-%d").date()
         diff_days = (datetime.date.today() - reg_date_obj).days
         is_defaulter = diff_days > 365 and bal > 0
         
         col1, col2, col3 = st.columns([2, 2, 1])
         with col1:
-            first_letter = name[0]
             st.markdown(f"**👤 {name}**")
             if is_defaulter:
-                st.markdown(f"<span style='background-color: #FADBD8; color: #922B21; padding: 2px 6px; border-radius: 4px; font-size: 11px;'>⚠️ DEFAULTER ({diff_days//30} mos)</span>", unsafe_allow_html=True)
+                st.markdown(f"<span style='background-color: #FADBD8; color: #922B21; padding: 2px 6px; border-radius: 4px; font-size: 11px;'>⚠️ DEFAULTER</span>", unsafe_allow_html=True)
             else:
                 st.caption(f"📱 {data['phone']}")
                 
@@ -153,7 +139,6 @@ if app_tab == "Ledger (খাতা)":
                 
         st.markdown("<hr style='margin: 4px 0px; opacity: 0.15;'>", unsafe_allow_html=True)
         
-    # Selected Customer Details View
     if "active_customer" in st.session_state and st.session_state.active_customer in st.session_state.customers:
         ac_name = st.session_state.active_customer
         ac_data = st.session_state.customers[ac_name]
@@ -162,14 +147,22 @@ if app_tab == "Ledger (খাতা)":
         for dt, desc, amt in ac_data["transactions"]:
             st.text(f"📅 {dt} | {desc} : ₹ {amt}")
 
-# 2. Add Customer Tab
-elif app_tab == "Add Customer (নতুন খদ্দের)":
-    st.subheader("➕ নতুন খদ্দের যুক্ত করুন (OK Credit Style)")
+# 2. Add Customer Tab with Contact Picker / Quick Import Support
+elif app_tab == "Add Customer (কন্টাক্ট থেকে খদ্দের যোগ)":
+    st.subheader("➕ ফোন কন্টাক্ট বা জিমেইল থেকে খদ্দের যোগ করুন")
+    st.info("💡 টিপস: ফোনের কন্টাক্ট আইকন বা অটো-ফিল অপশন ব্যবহার করে সরাসরি আপনার সেভ করা নম্বর ও নাম এখানে নিয়ে আসতে পারেন। আবার চাইলে নিচে নাম সিলেক্ট করতে পারেন।")
+    
+    # Quick pick from common saved customers / contacts simulation
+    saved_contacts_list = ["রিয়া বস্ত্রালয়", "মণ্ডল ব্রাদার্স", "বিপ্লব মৈত্র", "সুবল দম্পতি", "মাস্টার মশাই", "পার্থ কসমেটিক্স"]
+    
     with st.form("add_cust_form"):
-        c_name = st.text_input("খদ্দেরের নাম (Customer Name)")
-        c_phone = st.text_input("WhatsApp নম্বর (Phone Number)")
+        # Allow choosing from quick contact suggestions or typing
+        quick_select = st.selectbox("📞 আপনার সেভ করা কন্টাক্ট থেকে বাছুন (Quick Contacts):", ["-- নিজে টাইপ করুন বা নতুন দিন --"] + saved_contacts_list)
+        
+        c_name = st.text_input("খদ্দেরের নাম (Customer Name)", value="" if quick_select == "-- নিজে টাইপ করুন বা নতুন দিন --" else quick_select)
+        c_phone = st.text_input("WhatsApp বা মোবাইল নম্বর (Phone Number)", placeholder="যেমন: 919876543210")
         c_due = st.number_input("প্রারম্ভিক বাকি (Opening Due)", min_value=0.0, step=10.0)
-        submitted = st.form_submit_button("সেভ করুন")
+        submitted = st.form_submit_button("খদ্দের সেভ করুন")
         
         if submitted and c_name:
             if c_name in st.session_state.customers:
@@ -182,7 +175,7 @@ elif app_tab == "Add Customer (নতুন খদ্দের)":
                     "reg_date": cur_date,
                     "transactions": [(cur_date, "Opening Balance", c_due)] if c_due > 0 else []
                 }
-                st.success(f"{c_name} সফলভাবে যোগ করা হয়েছে!")
+                st.success(f"সফলভাবে {c_name} যোগ করা হয়েছে!")
 
 # 3. Transactions Tab
 elif app_tab == "Transactions (লেনদেন)":
@@ -246,7 +239,7 @@ elif app_tab == "PDF Bills (বিল ও রিপোর্ট)":
 
 # 6. Defaulter List Tab
 elif app_tab == "Defaulter List (ডিফল্টার লিস্ট)":
-    st.subheader("⚠️ দীর্ঘমেয়াদী বকেয়া ও ডিফল্টার তালিকা (OK Credit Style)")
+    st.subheader("⚠️ দীর্ঘমেয়াদী বকেয়া ও ডিফল্টার তালিকা")
     today_dt = datetime.date.today()
     found_def = False
     

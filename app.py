@@ -3,7 +3,7 @@ import datetime
 import urllib.parse
 from PIL import Image
 
-# Force Earth Logo in browser tab and PWA mobile installation icon via HTML header injection
+# 1. Page Configuration & Universal Earth PWA Manifest Injection for all users/devices
 st.set_page_config(
     page_title="Nasrin Bastralaya - Hisab Khata",
     page_icon="🌍",
@@ -14,6 +14,7 @@ st.markdown("""
     <head>
         <link rel="icon" href="https://emojicdn.elk.sh/🌍">
         <link rel="apple-touch-icon" href="https://emojicdn.elk.sh/🌍">
+        <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Nasrin%20Bastralaya%20Hisab%22%2C%22short_name%22%3A%22Hisab%22%2C%22start_url%22%3A%22%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23ffffff%22%2C%22theme_color%22%3A%22%2327AE60%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22https%3A%2F%2Femojicdn.elk.sh%2F%F0%9F%8C%8D%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
     </head>
     <style>
     .net-balance-box {
@@ -57,7 +58,7 @@ if "active_view" not in st.session_state:
 if "shop_dp" not in st.session_state:
     st.session_state.shop_dp = None
 
-# --- OK Credit Style Header (Clean, no unwanted text) ---
+# --- OK Credit Style Header ---
 header_col1, header_col2 = st.columns([3, 1])
 with header_col1:
     st.markdown("### 🌍 নাসরিন বস্ত্রালয় - হিসাব খাতা")

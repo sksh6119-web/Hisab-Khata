@@ -3,17 +3,17 @@ import datetime
 import urllib.parse
 from PIL import Image
 
-# 1. Page Configuration & Custom HTML Favicon for Earth Logo
+# Force Earth Logo in browser tab and PWA mobile installation icon via HTML header injection
 st.set_page_config(
     page_title="Nasrin Bastralaya - Hisab Khata",
     page_icon="🌍",
     layout="centered"
 )
 
-# Forcefully injecting Earth Logo into browser tab and PWA app icon head
 st.markdown("""
     <head>
         <link rel="icon" href="https://emojicdn.elk.sh/🌍">
+        <link rel="apple-touch-icon" href="https://emojicdn.elk.sh/🌍">
     </head>
     <style>
     .net-balance-box {
@@ -57,18 +57,18 @@ if "active_view" not in st.session_state:
 if "shop_dp" not in st.session_state:
     st.session_state.shop_dp = None
 
-# --- OK Credit Style Header with Earth Logo & Owner DP ---
+# --- OK Credit Style Header (Clean, no unwanted text) ---
 header_col1, header_col2 = st.columns([3, 1])
 with header_col1:
     st.markdown("### 🌍 নাসরিন বস্ত্রালয় - হিসাব খাতা")
-    st.caption("OK Credit Style Digital Ledger")
+    st.caption("Digital Ledger & Collection System")
 with header_col2:
     if st.session_state.shop_dp is not None:
-        st.image(st.session_state.shop_dp, width=45, caption="Owner")
+        st.image(st.session_state.shop_dp, width=45)
     else:
         st.markdown("👤 **DP**")
 
-# --- OK Credit Style Navigation Tabs ---
+# --- Navigation Tabs ---
 nav1, nav2, nav3, nav4 = st.columns(4)
 with nav1:
     if st.button("📖 Ledger", use_container_width=True):
@@ -182,7 +182,7 @@ elif st.session_state.active_view == "More":
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.session_state.shop_dp = image
-        st.success("✅ আপনার ডিপি সফলভাবে সেট করা হয়েছে! ওপরের কোণায় দেখতে পাবেন।")
+        st.success("✅ আপনার ডিপি সফলভাবে সেট করা হয়েছে!")
         st.image(image, width=120, caption="Uploaded DP Preview")
         
     st.markdown("---")
